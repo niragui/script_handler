@@ -8,5 +8,7 @@ EXECUTE_FIELD = "exec_path"
 LOG_FIELD = "log_path"
 ARG_FIELD = "arguments"
 
+TIMEOUT_FIELD = "timeout"
+LAST_DATE_FIELD = "last_date"
 
 ACTIVE_FIELD = "active"

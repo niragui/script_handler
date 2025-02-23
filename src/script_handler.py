@@ -1,12 +1,22 @@
 from typing import List
 
+import datetime
+
 import os
 
 import json
 
 from .exceptions import MissingScriptsFile, InvalidScriptsFile
 from .script import Script
-from .constants import PID_FIELD, ACTIVE_FIELD
+from .constants import PID_FIELD, ACTIVE_FIELD, LAST_DATE_FIELD
+
+import sys
+
+IMPORT_PATH = os.path.join(__file__, os.pardir, os.pardir)
+sys.path.append(IMPORT_PATH)
+
+
+from Publisher.publisher import Publisher
 
 
 class ScriptHandler():
@@ -56,12 +66,26 @@ class ScriptHandler():
         Check if all the scripts are running. In case some it's not,
         it restarts it.
         """
+        processes_updated = False
+        processes_text = ""
+
         for i, script in enumerate(self.scripts):
             new_pid = script.check_script_alive()
             if new_pid is not None:
-                print(f"{script.name} Has Been Restarted")
+                processes_updated = True
+                processes_text += f"{script.name} Has Been Restarted\n"
                 self.scripts_dicts[i][PID_FIELD] = new_pid
+                if script.last_time is not None:
+                    self.scripts_dicts[i][LAST_DATE_FIELD] = script.last_time.isoformat()
                 self.update_scripts_dict()
             else:
-                print(f"{script.name} Was Already Running")
+                processes_text += f"{script.name} Was Already Running\n"
 
+        if processes_updated:
+            now = datetime.datetime.now()
+
+            topic = "Script Handler"
+            subject = f"Scripts Changes During [{now}]"
+
+            publisher = Publisher(topic, subject, processes_text)
+            publisher.publish()

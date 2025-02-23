@@ -1,8 +1,10 @@
 [
     {
         "name": "Time Test",
-        "file_path": "script_test.py",
-        "pid": 17496
+        "file_path": "script_trial.py",
+        "arguments": "10",
+        "pid": 24288,
+        "last_date": "2025-02-23T02:18:04.740089"
     },
     {
         "name": "Time Test Other Dir",
