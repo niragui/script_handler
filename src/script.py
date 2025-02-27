@@ -30,11 +30,6 @@ class Script():
                  arguments: Optional[List[str]] = None):
         self.name = name
 
-        if not os.path.isfile(file_path):
-            raise ProcessException(f"File Path Must Be An Existing File [{file_path}]")
-
-        self.file_path = file_path
-
         if last_pid is not None:
             check_valid_pid(last_pid)
         self.last_pid = last_pid
@@ -66,6 +61,13 @@ class Script():
 
         self.directory = operating_directory
 
+        full_path = os.path.join(self.directory, file_path)
+
+        if not os.path.isfile(full_path):
+            raise ProcessException(f"File Path Must Be An Existing File [{full_path}]")
+
+        self.file_path = file_path
+
         if not isinstance(executing_path, str):
             raise TypeError(f"Invalid Executing Path For {self.name} [{executing_path}]")
 
@@ -75,6 +77,7 @@ class Script():
             logs_folder = os.path.join(operating_directory, "logs")
             os.makedirs(logs_folder, exist_ok=True)
             save_path = os.path.join(logs_folder, f"{name}.txt")
+            print(save_path)
 
         save_filename = os.path.basename(save_path)
         save_filename = f"{time()}_{save_filename}"
