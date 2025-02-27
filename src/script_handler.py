@@ -12,7 +12,7 @@ from .constants import PID_FIELD, ACTIVE_FIELD, LAST_DATE_FIELD
 
 import sys
 
-IMPORT_PATH = os.path.join(__file__, os.pardir, os.pardir)
+IMPORT_PATH = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir)
 sys.path.append(IMPORT_PATH)
 
 
@@ -49,10 +49,8 @@ class ScriptHandler():
 
         for script_data in self.scripts_dicts:
             active = script_data.get(ACTIVE_FIELD, True)
-            if not active:
-                continue
             script = Script.from_dict(script_data)
-            self.scripts.append(script)
+            self.scripts.append((script, active))
 
     def update_scripts_dict(self):
         """
@@ -69,7 +67,9 @@ class ScriptHandler():
         processes_updated = False
         processes_text = ""
 
-        for i, script in enumerate(self.scripts):
+        for i, (script, active) in enumerate(self.scripts):
+            if not active:
+                continue
             new_pid = script.check_script_alive()
             if new_pid is not None:
                 processes_updated = True
@@ -78,14 +78,17 @@ class ScriptHandler():
                 if script.last_time is not None:
                     self.scripts_dicts[i][LAST_DATE_FIELD] = script.last_time.isoformat()
                 self.update_scripts_dict()
-            else:
-                processes_text += f"{script.name} Was Already Running\n"
+
+        print(processes_text)
 
         if processes_updated:
             now = datetime.datetime.now()
 
             topic = "Script Handler"
-            subject = f"Scripts Changes During [{now}]"
+            subject = f"Scripts Changes [{now}]"
 
             publisher = Publisher(topic, subject, processes_text)
+            print(vars(publisher))
             publisher.publish()
+        else:
+            print("Nothing Happened")
