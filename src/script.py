@@ -163,6 +163,17 @@ class Script():
         if gap.total_seconds() >= self.timeout:
             return True
 
+    def restart_process(self):
+        """
+        Restarts the current process
+        """
+        is_running = self.is_running()
+
+        if is_running:
+            kill_process(self.last_pid)
+
+        self.start_script()
+
     def check_script_alive(self):
         """
         Check if the scripts are alive or if it should be restarted.
