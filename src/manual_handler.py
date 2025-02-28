@@ -44,7 +44,7 @@ def list_scripts(scripts_file: str = SCRIPTS_FILE):
 
     for script in scripts:
         script_name = script[NAME_FIELD]
-        script_active = script[ACTIVE_FIELD]
+        script_active = script.get(ACTIVE_FIELD, True)
 
         new_script = {}
         new_script[NAME_FIELD] = script_name
@@ -74,12 +74,17 @@ def restart_script(name: str,
 
         if script_name == name:
             script_found = True
+            active_script = script.get(ACTIVE_FIELD, True)
+
+            if not active_script:
+                raise ValueError("Can't Restart Deactivated Script")
+
             script_item = Script.from_dict(script)
 
             script_item.restart_process()
 
             script[PID_FIELD] = script_item.last_pid
-            script[LAST_DATE_FIELD] = script_item.last_time
+            script[LAST_DATE_FIELD] = script_item.last_time.isoformat()
 
         changed_scripts.append(script)
 
